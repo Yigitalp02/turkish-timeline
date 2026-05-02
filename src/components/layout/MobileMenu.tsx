@@ -73,7 +73,7 @@ export function MobileMenu() {
         {/* Drawer header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border dark:border-border-dark">
           <span className="font-display text-lg font-semibold text-gold tracking-wide">
-            KRONOS
+            YAZIT
           </span>
           <button
             onClick={() => setOpen(false)}

@@ -6,10 +6,22 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
+// Derive the server URL for image remote patterns (avoids hardcoding).
+// Defaults to localhost:3000 for local dev; override with NEXT_PUBLIC_SERVER_URL in production.
+const serverUrl = new URL(process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000')
+
 const nextConfig: NextConfig = {
   images: {
+    // Local paths (same origin) — for when Payload returns a relative URL
     localPatterns: [
+      { pathname: '/api/media/file/**' },
+    ],
+    // Absolute URLs from Payload (includes protocol + hostname)
+    remotePatterns: [
       {
+        protocol: serverUrl.protocol.replace(':', '') as 'http' | 'https',
+        hostname: serverUrl.hostname,
+        ...(serverUrl.port ? { port: serverUrl.port } : {}),
         pathname: '/api/media/file/**',
       },
     ],

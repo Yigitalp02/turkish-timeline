@@ -33,7 +33,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
     meta: {
-      titleSuffix: '— Kronos Admin',
+      titleSuffix: '— Yazıt Admin',
     },
   },
 
@@ -71,8 +71,8 @@ export default buildConfig({
       // Auto-generate meta title from the document's primary title field
       generateTitle: ({ doc }) => {
         const raw = (doc as Record<string, unknown>)
-        const name = (raw?.title || raw?.full_name || 'Kronos') as string
-        return `${name} | Kronos`
+        const name = (raw?.title || raw?.full_name || 'Yazıt') as string
+        return `${name} | Yazıt`
       },
 
       // Auto-generate meta description from the short summary field

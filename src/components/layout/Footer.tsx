@@ -13,7 +13,7 @@ export function Footer() {
           {/* Brand block */}
           <div className="flex flex-col gap-2">
             <span className="font-display text-xl font-bold tracking-widest text-gold">
-              KRONOS
+              YAZIT
             </span>
             <p className="max-w-xs text-sm text-fg-muted dark:text-fg-muted-dark leading-relaxed">
               Türk tarihinin yaklaşık 1820'den günümüze uzanan dönemi için
@@ -67,7 +67,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="flex flex-col gap-1 border-t border-border dark:border-border-dark py-5 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-fg-muted dark:text-fg-muted-dark">
-            © {currentYear} Kronos. Tüm hakları saklıdır.
+            © {currentYear} Yazıt. Tüm hakları saklıdır.
           </p>
           <p className="text-xs text-fg-muted dark:text-fg-muted-dark">
             Payload CMS + Next.js ile inşa edildi.

@@ -28,7 +28,7 @@ export function Navbar() {
           <Link
             href="/"
             className="flex items-center gap-2 shrink-0 group"
-            aria-label="Kronos — Ana sayfa"
+            aria-label="Yazıt — Ana sayfa"
           >
             {/* Decorative crescent-star mark */}
             <span
@@ -43,7 +43,7 @@ export function Navbar() {
               ✦
             </span>
             <span className="font-display text-lg font-bold tracking-widest text-ink dark:text-cream">
-              KRONOS
+              YAZIT
             </span>
           </Link>
 

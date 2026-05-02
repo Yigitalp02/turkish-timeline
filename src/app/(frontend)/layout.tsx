@@ -26,17 +26,17 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Kronos — Türk Tarihi Zaman Tüneli',
-    template: '%s | Kronos',
+    default: 'Yazıt — Türk Tarihi Zaman Tüneli',
+    template: '%s | Yazıt',
   },
   description:
     'Türk tarihinin yaklaşık 1820\'den günümüze uzanan dönemini kapsayan interaktif zaman tüneli ve ansiklopedi.',
   keywords: ['türk tarihi', 'osmanlı', 'zaman tüneli', 'tarih', 'ansiklopedi'],
-  authors: [{ name: 'Kronos' }],
+  authors: [{ name: 'Yazıt' }],
   openGraph: {
     type: 'website',
     locale: 'tr_TR',
-    siteName: 'Kronos',
+    siteName: 'Yazıt',
   },
   robots: {
     index: true,
