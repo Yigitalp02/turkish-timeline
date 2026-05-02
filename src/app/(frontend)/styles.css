@@ -1,164 +1,152 @@
-:root {
-  --font-mono: 'Roboto Mono', monospace;
+/* ============================================================
+   KRONOS — Global Design System
+   Tailwind v4 CSS-first configuration
+   ============================================================ */
+
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+/* Class-based dark mode: next-themes adds/removes 'dark' on <html> */
+@variant dark (&:where(.dark, .dark *));
+
+/* ── Design tokens ────────────────────────────────────────────────────────── */
+@theme {
+  /* Typography */
+  --font-display: var(--font-playfair), 'Georgia', 'Times New Roman', serif;
+  --font-body:    var(--font-inter), system-ui, sans-serif;
+
+  /* ── Brand palette ──────────────────────────────────────────────────────
+     Inspired by Ottoman symbolism: gold, crimson, deep ink, aged parchment
+  ────────────────────────────────────────────────────────────────────────── */
+  --color-gold:          #C9A84C;
+  --color-gold-light:    #E8C97A;
+  --color-gold-dark:     #A07830;
+  --color-crimson:       #8B1A1A;
+  --color-crimson-light: #B22222;
+  --color-ink:           #1A1208;
+  --color-cream:         #F5F0E8;
+  --color-parchment:     #FAFAF7;
+  --color-stone:         #8B7355;
+  --color-stone-light:   #B0967A;
+  --color-stone-dark:    #5C4A32;
+
+  /* ── Neutral surface scale ────────────────────────────────────────────── */
+  --color-surface:       #FAFAF7;    /* page background (light) */
+  --color-surface-card:  #FFFFFF;    /* card background (light) */
+  --color-surface-muted: #F0EBE0;    /* subtle tinted surface (light) */
+  --color-surface-800:   #1E1C18;    /* card background (dark) */
+  --color-surface-900:   #141210;    /* page background (dark) */
+  --color-surface-950:   #0D0C0A;    /* deepest black (dark) */
+
+  /* ── Border ──────────────────────────────────────────────────────────── */
+  --color-border:      #E0D9CE;
+  --color-border-dark: #2E2A24;
+
+  /* ── Semantic text ────────────────────────────────────────────────────── */
+  --color-fg:           #1A1208;
+  --color-fg-muted:     #6B6358;
+  --color-fg-dark:      #F2EDE6;
+  --color-fg-muted-dark:#A09585;
+
+  /* ── Era accent colours (used for era cards and timeline strips) ───────
+     Each era gets its own accent for the colour-coded timeline.
+  ────────────────────────────────────────────────────────────────────────── */
+  --color-era-ottoman:   #8B1A1A;   /* Tanzimat / late Ottoman — crimson */
+  --color-era-ww1:       #6B4E2A;   /* WWI / Balkan Wars — dark amber  */
+  --color-era-kurtulus:  #4A5568;   /* Kurtuluş Savaşı — steel grey    */
+  --color-era-republic:  #1A3A6B;   /* Early Republic — dark blue      */
+  --color-era-modern:    #1A5C34;   /* Modern Turkey — deep green      */
 }
 
-* {
+/* ── Base resets & defaults ─────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 html {
-  font-size: 18px;
-  line-height: 32px;
-
-  background: rgb(0, 0, 0);
   -webkit-font-smoothing: antialiased;
-}
-
-html,
-body,
-#app {
-  height: 100%;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+  text-size-adjust: 100%;
 }
 
 body {
-  font-family: system-ui;
-  font-size: 18px;
-  line-height: 32px;
-
-  margin: 0;
-  color: rgb(1000, 1000, 1000);
-
-  @media (max-width: 1024px) {
-    font-size: 15px;
-    line-height: 24px;
-  }
+  font-family: var(--font-body);
+  background-color: var(--color-surface);
+  color: var(--color-fg);
+  line-height: 1.7;
+  min-height: 100dvh;
 }
 
-img {
+.dark body {
+  background-color: var(--color-surface-900);
+  color: var(--color-fg-dark);
+}
+
+img,
+video {
   max-width: 100%;
   height: auto;
   display: block;
 }
 
-h1 {
-  margin: 40px 0;
-  font-size: 64px;
-  line-height: 70px;
-  font-weight: bold;
+/* ── Prose (rich text renderer) customisation ────────────────────────────── */
+/* Override @tailwindcss/typography variables to match our design palette.
+   Applied to the wrapper element in the RichText renderer component (Phase 9). */
+.prose {
+  --tw-prose-body:                var(--color-fg);
+  --tw-prose-headings:            var(--color-ink);
+  --tw-prose-links:               var(--color-gold-dark);
+  --tw-prose-bold:                var(--color-ink);
+  --tw-prose-counters:            var(--color-stone);
+  --tw-prose-bullets:             var(--color-gold);
+  --tw-prose-hr:                  var(--color-border);
+  --tw-prose-quotes:              var(--color-stone-dark);
+  --tw-prose-quote-borders:       var(--color-gold);
+  --tw-prose-captions:            var(--color-fg-muted);
+  --tw-prose-code:                var(--color-crimson);
+  --tw-prose-pre-code:            var(--color-cream);
+  --tw-prose-pre-bg:              var(--color-ink);
+  --tw-prose-th-borders:          var(--color-border);
+  --tw-prose-td-borders:          var(--color-border);
 
-  @media (max-width: 1024px) {
-    margin: 24px 0;
-    font-size: 42px;
-    line-height: 42px;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 38px;
-    line-height: 38px;
-  }
-
-  @media (max-width: 400px) {
-    font-size: 32px;
-    line-height: 32px;
-  }
+  /* Dark mode inversions */
+  --tw-prose-invert-body:         var(--color-fg-dark);
+  --tw-prose-invert-headings:     var(--color-cream);
+  --tw-prose-invert-links:        var(--color-gold);
+  --tw-prose-invert-bold:         var(--color-cream);
+  --tw-prose-invert-counters:     var(--color-stone-light);
+  --tw-prose-invert-bullets:      var(--color-gold-dark);
+  --tw-prose-invert-hr:           var(--color-border-dark);
+  --tw-prose-invert-quotes:       var(--color-stone-light);
+  --tw-prose-invert-quote-borders:var(--color-gold-dark);
+  --tw-prose-invert-captions:     var(--color-fg-muted-dark);
+  --tw-prose-invert-code:         var(--color-gold-light);
+  --tw-prose-invert-pre-code:     var(--color-cream);
+  --tw-prose-invert-pre-bg:       var(--color-surface-950);
+  --tw-prose-invert-th-borders:   var(--color-border-dark);
+  --tw-prose-invert-td-borders:   var(--color-border-dark);
 }
 
-p {
-  margin: 24px 0;
-
-  @media (max-width: 1024px) {
-    margin: calc(var(--base) * 0.75) 0;
-  }
+/* ── Focus ring ──────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
-a {
-  color: currentColor;
-
-  &:focus {
-    opacity: 0.8;
-    outline: none;
-  }
-
-  &:active {
-    opacity: 0.7;
-    outline: none;
-  }
+/* ── Selection colour ────────────────────────────────────────────────────── */
+::selection {
+  background-color: color-mix(in oklch, var(--color-gold) 30%, transparent);
 }
 
-svg {
-  vertical-align: middle;
+/* ── Scrollbar (WebKit) ──────────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 8px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  {
+  background: var(--color-stone);
+  border-radius: 4px;
 }
-
-.home {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  height: 100vh;
-  padding: 45px;
-  max-width: 1024px;
-  margin: 0 auto;
-  overflow: hidden;
-
-  @media (max-width: 400px) {
-    padding: 24px;
-  }
-
-  .content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex-grow: 1;
-
-    h1 {
-      text-align: center;
-    }
-  }
-
-  .links {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-
-    a {
-      text-decoration: none;
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
-    }
-
-    .admin {
-      color: rgb(0, 0, 0);
-      background: rgb(1000, 1000, 1000);
-      border: 1px solid rgb(0, 0, 0);
-    }
-
-    .docs {
-      color: rgb(1000, 1000, 1000);
-      background: rgb(0, 0, 0);
-      border: 1px solid rgb(1000, 1000, 1000);
-    }
-  }
-
-  .footer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    @media (max-width: 1024px) {
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    p {
-      margin: 0;
-    }
-
-    .codeLink {
-      text-decoration: none;
-      padding: 0 0.5rem;
-      background: rgb(60, 60, 60);
-      border-radius: 4px;
-    }
-  }
-}
+::-webkit-scrollbar-thumb:hover { background: var(--color-gold-dark); }
