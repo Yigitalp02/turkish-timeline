@@ -72,6 +72,7 @@ export interface Config {
     kisiler: Kisiler;
     donemler: Donemler;
     olaylar: Olaylar;
+    search: Search;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +85,7 @@ export interface Config {
     kisiler: KisilerSelect<false> | KisilerSelect<true>;
     donemler: DonemlerSelect<false> | DonemlerSelect<true>;
     olaylar: OlaylarSelect<false> | OlaylarSelect<true>;
+    search: SearchSelect<false> | SearchSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -212,6 +214,14 @@ export interface Kisiler {
   birth_year?: number | null;
   death_year?: number | null;
   portrait?: (number | null) | Media;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -247,6 +257,14 @@ export interface Donemler {
    * Bu dönemin tema rengi. Örn: #8B1A1A (koyu kırmızı), #1A3A6B (lacivert).
    */
   accent_color?: string | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -300,9 +318,39 @@ export interface Olaylar {
    */
   sort_order?: number | null;
   tags?: ('askeri' | 'diplomatik' | 'kulturel' | 'ekonomik' | 'siyasi' | 'toplumsal')[] | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This is a collection of automatically created search results. These results are used by the global site search and will be updated automatically as documents in the CMS are created or updated.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "search".
+ */
+export interface Search {
+  id: number;
+  title?: string | null;
+  priority?: number | null;
+  doc:
+    | {
+        relationTo: 'kisiler';
+        value: number | Kisiler;
+      }
+    | {
+        relationTo: 'olaylar';
+        value: number | Olaylar;
+      };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -347,6 +395,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'olaylar';
         value: number | Olaylar;
+      } | null)
+    | ({
+        relationTo: 'search';
+        value: number | Search;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -444,6 +496,13 @@ export interface KisilerSelect<T extends boolean = true> {
   birth_year?: T;
   death_year?: T;
   portrait?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -461,6 +520,13 @@ export interface DonemlerSelect<T extends boolean = true> {
   end_year?: T;
   cover_image?: T;
   accent_color?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -479,9 +545,27 @@ export interface OlaylarSelect<T extends boolean = true> {
   display_year?: T;
   sort_order?: T;
   tags?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "search_select".
+ */
+export interface SearchSelect<T extends boolean = true> {
+  title?: T;
+  priority?: T;
+  doc?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
