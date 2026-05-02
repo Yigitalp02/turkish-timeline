@@ -1,6 +1,12 @@
 import type { CollectionConfig, Access } from 'payload'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { lexicalEditor, BlocksFeature } from '@payloadcms/richtext-lexical'
 import { populateSlug, populateDisplayYear } from '../lib/slugify'
+import { QuoteBlock } from '../blocks/QuoteBlock'
+import { ArchiveDocumentBlock } from '../blocks/ArchiveDocumentBlock'
+import { MapBlock } from '../blocks/MapBlock'
+import { FootnoteBlock } from '../blocks/FootnoteBlock'
+import { TimelineCalloutBlock } from '../blocks/TimelineCalloutBlock'
+import { InlinePersonMentionBlock } from '../blocks/InlinePersonMentionBlock'
 
 const isLoggedIn: Access = ({ req: { user } }) => Boolean(user)
 
@@ -35,9 +41,15 @@ export const Olaylar: CollectionConfig = {
       name: 'content',
       type: 'richText',
       label: 'İçerik',
-      // Phase 4: custom Lexical blocks (QuoteBlock, MapBlock, etc.) and
-      // InlinePersonMention inline feature will be added here.
-      editor: lexicalEditor(),
+      editor: lexicalEditor({
+        features: ({ defaultFeatures }) => [
+          ...defaultFeatures,
+          BlocksFeature({
+            blocks: [QuoteBlock, ArchiveDocumentBlock, MapBlock, FootnoteBlock, TimelineCalloutBlock],
+            inlineBlocks: [InlinePersonMentionBlock],
+          }),
+        ],
+      }),
     },
     {
       name: 'participants',

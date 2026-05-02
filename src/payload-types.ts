@@ -619,6 +619,122 @@ export interface CollectionsWidget {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "QuoteBlock".
+ */
+export interface QuoteBlock {
+  quote_text: string;
+  /**
+   * Alıntının sahibi olan tarihsel figür (opsiyonel).
+   */
+  person?: (number | null) | Kisiler;
+  /**
+   * Örn: "1919, İzmir İşgali sonrası" veya "Kasım 1922, TBMM"
+   */
+  context_date?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'quote-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ArchiveDocumentBlock".
+ */
+export interface ArchiveDocumentBlock {
+  /**
+   * Taranmış orijinal belgenin görüntüsü.
+   */
+  document_image: number | Media;
+  /**
+   * Belgenin Türkçe veya Osmanlıca transkripsiyonu.
+   */
+  transcription?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Örn: "Başbakanlık Osmanlı Arşivi, HR.SYS 2626/1"
+   */
+  source_archive?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'archive-document-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MapBlock".
+ */
+export interface MapBlock {
+  /**
+   * Örn: "İzmir", "Çanakkale Cephesi", "Ankara — TBMM"
+   */
+  location_name: string;
+  /**
+   * Statik harita taraması veya açıklamalı görsel.
+   */
+  map_image?: (number | null) | Media;
+  /**
+   * İsteğe bağlı. Örn: "38.4189, 27.1287" — ileride interaktif harita için kullanılabilir.
+   */
+  coordinates?: string | null;
+  legend?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'map-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FootnoteBlock".
+ */
+export interface FootnoteBlock {
+  /**
+   * Belge içinde eşsiz bir tanımlayıcı. Örn: "fn-1", "fn-2". RichTextRenderer bu ID ile sıralı numara atar ve metnin altında kaynakça oluşturur.
+   */
+  footnote_id: string;
+  /**
+   * Tam atıf metni. Örn: "Zürcher, E. J. (2004). Turkey: A Modern History. London: I.B. Tauris."
+   */
+  citation_text: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'footnote-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TimelineCalloutBlock".
+ */
+export interface TimelineCalloutBlock {
+  callout_type: 'bilgi' | 'uyari' | 'kritik-tarih';
+  text: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'timeline-callout-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "InlinePersonMentionBlock".
+ */
+export interface InlinePersonMentionBlock {
+  /**
+   * Paragraf içinde bahsedilen tarihsel figürü seçin.
+   */
+  person: number | Kisiler;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'inline-person-mention';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {
