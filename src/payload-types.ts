@@ -69,6 +69,9 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    kisiler: Kisiler;
+    donemler: Donemler;
+    olaylar: Olaylar;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,6 +81,9 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    kisiler: KisilerSelect<false> | KisilerSelect<true>;
+    donemler: DonemlerSelect<false> | DonemlerSelect<true>;
+    olaylar: OlaylarSelect<false> | OlaylarSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -143,11 +149,16 @@ export interface User {
   collection: 'users';
 }
 /**
+ * Portreler, harita görselleri ve arşiv belgeleri için medya kitaplığı.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
   id: number;
+  /**
+   * Görselin açıklayıcı metni — erişilebilirlik ve SEO için zorunlu.
+   */
   alt: string;
   updatedAt: string;
   createdAt: string;
@@ -160,6 +171,138 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * Tarihsel figürler ve biyografik ansiklopedi girişleri.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "kisiler".
+ */
+export interface Kisiler {
+  id: number;
+  full_name: string;
+  /**
+   * Maks. 300 karakter. Zaman tünelinde ismin üzerine gelindiğinde açılan popover kartında görünür.
+   */
+  excerpt?: string | null;
+  biography?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Ad soyaddan otomatik oluşturulur. Özel URL için düzenleyebilirsiniz.
+   */
+  slug?: string | null;
+  role?: ('politikaci' | 'askeri-komutan' | 'diplomat' | 'entelektuel' | 'sanatci' | 'diger') | null;
+  /**
+   * Örn: "Osmanlı Sadrazamı", "Millî Şef", "Başkomutan"
+   */
+  title?: string | null;
+  birth_year?: number | null;
+  death_year?: number | null;
+  portrait?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Tarihsel dönemler ve çağlar — ana kategoriler (örn. Tanzimat, WWI, Erken Cumhuriyet).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "donemler".
+ */
+export interface Donemler {
+  id: number;
+  title: string;
+  /**
+   * Ana sayfadaki dönem kartında ve SEO meta açıklamasında kullanılır.
+   */
+  short_description?: string | null;
+  /**
+   * Bu döneme ait öne çıkan tarihsel figürler. Zaman tünelinin sağ kenar çubuğunda gösterilir.
+   */
+  key_figures?: (number | Kisiler)[] | null;
+  /**
+   * Dönem adından otomatik oluşturulur. Özel URL için düzenleyebilirsiniz.
+   */
+  slug?: string | null;
+  start_year: number;
+  end_year: number;
+  /**
+   * Dönem kartı ve sayfa başlığında gösterilir.
+   */
+  cover_image?: (number | null) | Media;
+  /**
+   * Bu dönemin tema rengi. Örn: #8B1A1A (koyu kırmızı), #1A3A6B (lacivert).
+   */
+  accent_color?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Zaman tünelindeki bireysel olaylar — her olay bir döneme (Dönem) bağlıdır.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "olaylar".
+ */
+export interface Olaylar {
+  id: number;
+  title: string;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Bu olaya katılan veya olayda yer alan kişiler.
+   */
+  participants?: (number | Kisiler)[] | null;
+  /**
+   * Başlıktan otomatik oluşturulur.
+   */
+  slug?: string | null;
+  /**
+   * Bu olayın ait olduğu tarihsel dönem.
+   */
+  era: number | Donemler;
+  /**
+   * Kronolojik sıralama için kullanılır.
+   */
+  exact_date: string;
+  /**
+   * Tam tarihten otomatik doldurulur. Sticky başlık ve radar kenar çubuğu için kullanılır.
+   */
+  display_year?: number | null;
+  /**
+   * Aynı tarihteki olayların sıralaması için. Küçük sayı önce gelir.
+   */
+  sort_order?: number | null;
+  tags?: ('askeri' | 'diplomatik' | 'kulturel' | 'ekonomik' | 'siyasi' | 'toplumsal')[] | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -192,6 +335,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'kisiler';
+        value: number | Kisiler;
+      } | null)
+    | ({
+        relationTo: 'donemler';
+        value: number | Donemler;
+      } | null)
+    | ({
+        relationTo: 'olaylar';
+        value: number | Olaylar;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -274,6 +429,59 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "kisiler_select".
+ */
+export interface KisilerSelect<T extends boolean = true> {
+  full_name?: T;
+  excerpt?: T;
+  biography?: T;
+  slug?: T;
+  role?: T;
+  title?: T;
+  birth_year?: T;
+  death_year?: T;
+  portrait?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "donemler_select".
+ */
+export interface DonemlerSelect<T extends boolean = true> {
+  title?: T;
+  short_description?: T;
+  key_figures?: T;
+  slug?: T;
+  start_year?: T;
+  end_year?: T;
+  cover_image?: T;
+  accent_color?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "olaylar_select".
+ */
+export interface OlaylarSelect<T extends boolean = true> {
+  title?: T;
+  content?: T;
+  participants?: T;
+  slug?: T;
+  era?: T;
+  exact_date?: T;
+  display_year?: T;
+  sort_order?: T;
+  tags?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

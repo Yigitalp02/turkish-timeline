@@ -7,6 +7,9 @@ import sharp from 'sharp'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
+import { Kisiler } from './collections/Kisiler'
+import { Donemler } from './collections/Donemler'
+import { Olaylar } from './collections/Olaylar'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -17,18 +20,30 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    meta: {
+      titleSuffix: '— Kronos Admin',
+    },
   },
-  collections: [Users, Media],
+
+  // Collections registered in dependency order:
+  // Media → Kisiler → Donemler → Olaylar
+  collections: [Users, Media, Kisiler, Donemler, Olaylar],
+
+  // Global Lexical editor — individual collections may override with custom blocks (Phase 4)
   editor: lexicalEditor(),
+
   secret: process.env.PAYLOAD_SECRET || '',
+
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
+
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
     },
   }),
+
   sharp,
   plugins: [],
 })
