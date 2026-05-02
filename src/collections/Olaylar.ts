@@ -1,6 +1,7 @@
 import type { CollectionConfig, Access } from 'payload'
 import { lexicalEditor, BlocksFeature } from '@payloadcms/richtext-lexical'
 import { populateSlug, populateDisplayYear } from '../lib/slugify'
+import { revalidateOlaylar, revalidateOlaylarOnDelete } from '../lib/revalidate'
 import { QuoteBlock } from '../blocks/QuoteBlock'
 import { ArchiveDocumentBlock } from '../blocks/ArchiveDocumentBlock'
 import { MapBlock } from '../blocks/MapBlock'
@@ -28,6 +29,8 @@ export const Olaylar: CollectionConfig = {
   },
   hooks: {
     beforeChange: [populateSlug('title'), populateDisplayYear],
+    afterChange: [revalidateOlaylar],
+    afterDelete: [revalidateOlaylarOnDelete],
   },
   fields: [
     // ── Main column ──────────────────────────────────────────────────────────

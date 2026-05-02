@@ -1,5 +1,6 @@
 import type { CollectionConfig, Access } from 'payload'
 import { populateSlug } from '../lib/slugify'
+import { revalidateDonemler, revalidateDonemlerOnDelete } from '../lib/revalidate'
 
 const isLoggedIn: Access = ({ req: { user } }) => Boolean(user)
 
@@ -21,6 +22,8 @@ export const Donemler: CollectionConfig = {
   },
   hooks: {
     beforeChange: [populateSlug('title')],
+    afterChange: [revalidateDonemler],
+    afterDelete: [revalidateDonemlerOnDelete],
   },
   fields: [
     // ── Main column ──────────────────────────────────────────────────────────

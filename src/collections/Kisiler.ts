@@ -1,6 +1,7 @@
 import type { CollectionConfig, Access } from 'payload'
 import { lexicalEditor, BlocksFeature } from '@payloadcms/richtext-lexical'
 import { populateSlug } from '../lib/slugify'
+import { revalidateKisiler, revalidateKisilerOnDelete } from '../lib/revalidate'
 import { QuoteBlock } from '../blocks/QuoteBlock'
 import { ArchiveDocumentBlock } from '../blocks/ArchiveDocumentBlock'
 import { MapBlock } from '../blocks/MapBlock'
@@ -28,6 +29,8 @@ export const Kisiler: CollectionConfig = {
   },
   hooks: {
     beforeChange: [populateSlug('full_name')],
+    afterChange: [revalidateKisiler],
+    afterDelete: [revalidateKisilerOnDelete],
   },
   fields: [
     // ── Main column ──────────────────────────────────────────────────────────
