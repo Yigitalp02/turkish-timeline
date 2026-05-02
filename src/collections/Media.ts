@@ -28,7 +28,6 @@ export const Media: CollectionConfig = {
     // Files stored here are served by Next.js as static assets at /media/*
     // In production this path is bind-mounted as a Docker volume.
     staticDir: path.resolve(dirname, '../../public/media'),
-    staticURL: '/media',
     mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif'],
   },
 }

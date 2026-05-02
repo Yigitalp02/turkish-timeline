@@ -99,11 +99,17 @@ export default buildConfig({
         return `${SERVER_URL}/${route}/${slug}`
       },
 
-      // Auto-generate OG image from the document's primary image field
+      // Auto-generate OG image from the document's primary image field.
+      // Return the media document's ID; the plugin resolves it to a URL.
       generateImage: ({ doc }) => {
         const raw = doc as Record<string, unknown>
         // Donemler uses cover_image, Kisiler uses portrait
-        return (raw?.cover_image || raw?.portrait) as Record<string, unknown> | undefined
+        const media = raw?.cover_image || raw?.portrait
+        if (typeof media === 'number') return media
+        if (media && typeof media === 'object' && 'id' in media) {
+          return (media as { id: number }).id
+        }
+        return ''
       },
     }),
 
@@ -119,12 +125,14 @@ export default buildConfig({
         olaylar: 10,
       },
 
-      beforeSync: ({ originalDoc, searchDoc, collection }) => {
+      beforeSync: ({ originalDoc, searchDoc, collectionSlug }) => {
         // Kisiler uses full_name — override the auto-populated title
-        if (collection === 'kisiler') {
+        if (collectionSlug === 'kisiler') {
           return {
             ...searchDoc,
-            title: (originalDoc as Record<string, unknown>)?.full_name ?? searchDoc.title,
+            title: String(
+              (originalDoc as Record<string, unknown>)?.full_name ?? searchDoc.title,
+            ),
           }
         }
 
