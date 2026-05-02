@@ -1,67 +1,266 @@
-# Payload Blank Template
+# Kronos — Turkish History Timeline
 
-This template comes configured with the bare minimum to get started on anything you need.
+An interactive, documentary-style historical timeline web application covering approximately 150 years of modern Turkish history. Built as a hybrid between Wikipedia's relational depth and a seamless continuous-scroll reading experience.
 
-## Quick start
+## Live
 
-This template can be deployed directly from our Cloud hosting and it will setup MongoDB and cloud S3 object storage for media.
+| URL | Purpose |
+|-----|---------|
+| `ybilgin.com` | Public-facing timeline site |
+| `admin.ybilgin.com` | Payload CMS admin panel |
 
-## Quick Start - local setup
+---
 
-To spin up this template locally, follow these steps:
+## Tech Stack
 
-### Clone
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 16 (App Router), React 19, TypeScript |
+| Styling | Tailwind CSS, `@tailwindcss/typography`, Framer Motion |
+| CMS | Payload CMS v3 (embedded in Next.js) |
+| Rich Text | Lexical editor with custom blocks and inline nodes |
+| Database | PostgreSQL 16 |
+| DevOps | Docker, Docker Compose, Nginx Proxy Manager |
+| Deployment | Self-hosted Ubuntu Server (`ybilgin.com`) |
 
-After you click the `Deploy` button above, you'll want to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
+---
 
-### Development
+## Project Structure
 
-1. First [clone the repo](#clone) if you have not done so already
-2. `cd my-project && cp .env.example .env` to copy the example environment variables. You'll need to add the `MONGODB_URL` from your Cloud project to your `.env` if you want to use S3 storage and the MongoDB database that was created for you.
+```
+kronos/
+├── src/
+│   ├── app/
+│   │   ├── (frontend)/          # Public-facing pages
+│   │   │   ├── page.tsx         # Hub — Era grid homepage
+│   │   │   ├── donemler/
+│   │   │   │   └── [era_slug]/  # Timeline Experience (3-column scroll)
+│   │   │   └── kisiler/
+│   │   │       └── [person_slug]/ # Person Wiki Profile
+│   │   └── (payload)/           # Payload CMS admin & API routes
+│   │       ├── admin/           # Auto-generated admin UI
+│   │       └── api/             # REST & GraphQL endpoints
+│   ├── collections/             # Payload CMS collection definitions
+│   │   ├── Media.ts
+│   │   ├── Users.ts
+│   │   ├── Donemler.ts          # Eras (e.g. Tanzimat, WWI, Early Republic)
+│   │   ├── Kisiler.ts           # Historical persons / encyclopedia entries
+│   │   └── Olaylar.ts           # Events on the timeline
+│   ├── blocks/                  # Custom Lexical block definitions
+│   │   ├── QuoteBlock.ts
+│   │   ├── ArchiveDocumentBlock.ts
+│   │   ├── MapBlock.ts
+│   │   ├── FootnoteBlock.ts
+│   │   └── TimelineCalloutBlock.ts
+│   ├── features/                # Custom Lexical inline node features
+│   │   └── InlinePersonMentionFeature.ts
+│   ├── components/              # Shared React components
+│   │   ├── RichTextRenderer/    # Recursive Lexical AST renderer
+│   │   └── PersonTooltip/       # Framer Motion hover popover
+│   ├── lib/                     # Data fetching via Payload Local API
+│   │   ├── payload.ts           # Payload singleton
+│   │   └── data/
+│   │       ├── eras.ts
+│   │       ├── persons.ts
+│   │       └── events.ts
+│   ├── payload.config.ts        # Payload CMS configuration
+│   └── payload-types.ts         # Auto-generated TypeScript types
+├── docker-compose.yml           # Production deployment
+├── docker-compose.dev.yml       # Local development (DB only)
+├── Dockerfile                   # Multi-stage production build
+└── .env.example                 # Environment variable reference
+```
 
-3. `pnpm install && pnpm dev` to install dependencies and start the dev server
-4. open `http://localhost:3000` to open the app in your browser
+---
 
-That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
+## Core Data Model
 
-#### Docker (Optional)
+Three main entities with many-to-many relationships managed by Payload CMS:
 
-If you prefer to use Docker for local development instead of a local MongoDB instance, the provided docker-compose.yml file can be used.
+```
+Donemler (Eras)          Kisiler (Persons)         Olaylar (Events)
+─────────────────        ──────────────────        ─────────────────
+title                    full_name                 title
+slug                     slug                      slug
+start_year               birth_year                exact_date
+end_year                 death_year                display_year
+short_description        role (Select)             sort_order
+cover_image ──────┐      title                     era ──────────── → Donemler
+accent_color      │      portrait ─────────────┐   participants ─── → Kisiler[]
+key_figures ──────┼──── → Kisiler[]            │   tags (Select[])
+                  │                             │   content (Lexical)
+                  └── Media ◄──────────────────┘
+```
 
-To do so, follow these steps:
+**Custom Lexical Blocks** (inside event/biography content):
+- `QuoteBlock` — Historical quotes with person attribution
+- `ArchiveDocumentBlock` — Scanned documents with transcriptions
+- `MapBlock` — Location images and coordinates
+- `FootnoteBlock` — Inline citations with generated bibliography
+- `TimelineCalloutBlock` — Highlighted callout boxes
+- `InlinePersonMention` — Inline person tags that trigger hover popovers
 
-- Modify the `MONGODB_URL` in your `.env` file to `mongodb://127.0.0.1/<dbname>`
-- Modify the `docker-compose.yml` file's `MONGODB_URL` to match the above `<dbname>`
-- Run `docker-compose up` to start the database, optionally pass `-d` to run in the background.
+---
 
-## How it works
+## UI Architecture
 
-The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
+### The Three Views
 
-### Collections
+**1. Hub (Home Page)**
+A visual grid of Era cards with cover images, accent colors, and year ranges.
 
-See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
+**2. Timeline Experience (Era Page)**
+A 3-column layout:
+- **Left** — Year Radar: fixed sidebar, highlights active year on scroll via IntersectionObserver
+- **Center** — The Flow: events stacked chronologically with Sticky Year Headers
+- **Right** — Era Actors: fixed panel of key historical figures with role badges
 
-- #### Users (Authentication)
+Events contain rich content rendered by the `RichTextRenderer` component. When an `InlinePersonMention` is encountered, a Framer Motion popover appears on hover — showing portrait, excerpt, and a "View Full Profile" link — without breaking the reading flow.
 
-  Users are auth-enabled collections that have access to the admin panel.
+**3. Person Profile (Wiki Page)**
+Portrait, life dates, role badge, full biography, and a chronological list of all events the person participated in.
 
-  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/3.x/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
+---
 
-- #### Media
+## Local Development
 
-  This is the uploads enabled collection. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
+### Prerequisites
+- Node.js 20+
+- pnpm 9+
+- Docker Desktop
 
-### Docker
+### 1. Clone and install
 
-Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
+```bash
+git clone https://github.com/Yigitalp02/turkish-timeline.git
+cd turkish-timeline
+pnpm install
+```
 
-1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
-1. Next run `docker-compose up`
-1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
+### 2. Set up environment
 
-That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
+```bash
+cp .env.example .env
+# .env is pre-configured for local Docker DB — no changes needed for dev
+```
 
-## Questions
+### 3. Start the database
 
-If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
+```bash
+docker compose -f docker-compose.dev.yml up -d
+```
+
+### 4. Start the dev server
+
+```bash
+pnpm dev
+```
+
+- Frontend: `http://localhost:3000`
+- Admin panel: `http://localhost:3000/admin`
+
+On first run, visit the admin URL and create your admin account. Payload will automatically run database migrations.
+
+---
+
+## Environment Variables
+
+See `.env.example` for the full reference. Key variables:
+
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | PostgreSQL connection string |
+| `PAYLOAD_SECRET` | Secret key for Payload CMS (min 32 chars) |
+| `NEXT_PUBLIC_SERVER_URL` | Public URL of the app (`http://localhost:3000` in dev) |
+
+---
+
+## Useful Commands
+
+```bash
+# Development
+pnpm dev                          # Start dev server
+pnpm build                        # Production build
+pnpm start                        # Start production server
+
+# Payload CMS
+pnpm generate:types               # Regenerate TypeScript types from schema
+pnpm generate:importmap           # Regenerate Payload import map
+
+# Database (local dev)
+docker compose -f docker-compose.dev.yml up -d    # Start DB
+docker compose -f docker-compose.dev.yml down     # Stop DB
+docker compose -f docker-compose.dev.yml down -v  # Stop DB + wipe data
+
+# Linting
+pnpm lint
+```
+
+---
+
+## Production Deployment
+
+Deployed on a self-hosted Ubuntu Server via Docker Compose and Nginx Proxy Manager.
+
+### Server layout
+
+```
+/home/bilgin/kronos/
+├── .env                  # Production environment variables
+├── postgres/             # PostgreSQL data volume (bind mount)
+└── media/                # Uploaded media files (bind mount)
+```
+
+### Deploy
+
+```bash
+# First time
+git clone https://github.com/Yigitalp02/turkish-timeline.git /home/bilgin/kronos
+cd /home/bilgin/kronos
+cp .env.example .env     # Fill in production values
+docker compose up -d
+
+# Subsequent deploys
+git pull origin main
+docker compose build app
+docker compose up -d --no-deps app
+```
+
+### Nginx Proxy Manager routing
+
+| Domain | Target |
+|--------|--------|
+| `ybilgin.com` | `kronos_app:3000` |
+| `admin.ybilgin.com` | `kronos_app:3000` (path rewrite to `/admin`) |
+
+Both domains use Let's Encrypt SSL certificates managed by NPM.
+
+---
+
+## Nightly Backups
+
+A cron job on the server dumps the database nightly at 2am:
+
+```bash
+0 2 * * * docker exec kronos_db pg_dump -U kronos_user kronos_db | gzip > /home/bilgin/backups/kronos/$(date +\%Y-\%m-\%d).sql.gz
+```
+
+---
+
+## Roadmap
+
+- [x] Phase 1 — Project scaffold (Payload v3 + Next.js + PostgreSQL)
+- [ ] Phase 2 — Payload collections (Donemler, Kisiler, Olaylar, Media)
+- [ ] Phase 3 — SEO and Search plugins
+- [ ] Phase 4 — Custom Lexical blocks and InlinePersonMention feature
+- [ ] Phase 5 — ISR revalidation hooks
+- [ ] Phase 6 — Data fetching layer (Payload Local API)
+- [ ] Phase 7 — Global layout and design system
+- [ ] Phase 8 — Hub page (Era grid)
+- [ ] Phase 9 — RichTextRenderer component
+- [ ] Phase 10 — PersonTooltip popover
+- [ ] Phase 11 — Timeline page (3-column Era view)
+- [ ] Phase 12 — Person profile and index pages
+- [ ] Phase 13 — Docker production build
+- [ ] Phase 14 — CI/CD and server deployment scripts
+- [ ] Phase 15 — SEO, performance, and polish
