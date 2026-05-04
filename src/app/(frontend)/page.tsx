@@ -4,9 +4,13 @@
  * Server Component. Fetches all published eras + aggregate counts in parallel,
  * renders the Hero section and the Era card grid.
  *
- * Cache: tagged with 'donemler', 'olaylar', 'kisiler' — any publish action in
- * the CMS (via the afterChange ISR hooks) will revalidate this page.
+ * force-dynamic: prevents Next.js from trying to statically render this page
+ * at Docker build time (when no DB is available).  The data layer still uses
+ * unstable_cache so individual DB queries are cached at runtime.
  */
+
+// eslint-disable-next-line import/no-unused-modules
+export const dynamic = 'force-dynamic'
 
 import type { Metadata } from 'next'
 import Link from 'next/link'

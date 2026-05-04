@@ -30,5 +30,13 @@ export async function GET(
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  return NextResponse.json(person)
+  return NextResponse.json(person, {
+    headers: {
+      // Allow the browser to cache the card for 1 h.
+      // The Next.js data cache (unstable_cache + revalidateTag) ensures the
+      // underlying Payload query is always fresh after a CMS publish, so this
+      // only affects repeat hover requests within the same browser session.
+      'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
+    },
+  })
 }

@@ -1,0 +1,55 @@
+name: Deploy to Home Server
+
+# Triggers on every push to main — but only when relevant files change.
+# Changes to docs, readme, etc. won't trigger a rebuild.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - 'next.config.ts'
+      - 'tailwind.config.ts'
+      - 'tsconfig.json'
+      - '.github/workflows/deploy.yml'
+
+jobs:
+  deploy:
+    # Runs on the self-hosted runner installed on your Ubuntu home server.
+    # See README or docs below for setup instructions.
+    runs-on: self-hosted
+
+    steps:
+      - name: Pull latest code
+        run: |
+          cd /opt/stack/yazit
+          git pull origin main
+
+      - name: Build app container
+        # Docker uses layer cache — if only src/ changed, pnpm install is cached
+        # and only the Next.js build step re-runs (~2-3 min instead of 5-7 min).
+        run: |
+          cd /opt/stack/yazit
+          docker compose build app
+
+      - name: Restart app container
+        run: |
+          cd /opt/stack/yazit
+          docker compose up -d --no-deps app
+
+      - name: Health check
+        run: |
+          echo "Waiting for app to boot..."
+          sleep 12
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3002/ --max-time 15 || echo "000")
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" = "000" ]; then
+            echo "App did not respond — check logs: docker logs yazit_app --tail 50"
+            exit 1
+          fi
+          echo "App is live (HTTP $STATUS)"

@@ -54,6 +54,10 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
     },
+    // push: true syncs the schema to the DB on every startup (creates tables
+    // if they don't exist). Safe for a personal project — equivalent to what
+    // Payload does automatically in dev mode.
+    push: process.env.NODE_ENV !== 'production' || process.env.PAYLOAD_DB_PUSH === 'true',
   }),
 
   sharp,

@@ -37,7 +37,7 @@ export async function getSearchResults(
       title: { like: query },
     },
     sort: '-priority',
-    depth: 0,
+    depth: 1, // populate doc.value so we get the slug for link construction
     limit,
   })
 

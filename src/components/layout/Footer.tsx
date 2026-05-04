@@ -64,6 +64,15 @@ export function Footer() {
           </div>
         </div>
 
+        {/* Disclaimer */}
+        <div className="border-t border-border dark:border-border-dark py-4">
+          <p className="text-xs leading-relaxed text-fg-muted dark:text-fg-muted-dark">
+            <span className="font-semibold text-fg dark:text-fg-dark">Yazıt</span>
+            {' '}kar amacı gütmeyen kişisel bir dijital tarih projesidir.
+            Hiçbir yayınevi, ticari kurum veya vakıf ile bağlantısı bulunmamaktadır.
+          </p>
+        </div>
+
         {/* Bottom bar */}
         <div className="flex flex-col gap-1 border-t border-border dark:border-border-dark py-5 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-fg-muted dark:text-fg-muted-dark">

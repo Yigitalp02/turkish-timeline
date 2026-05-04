@@ -4,10 +4,10 @@
  * NavLinks and MobileMenu which are Client Components.
  */
 import Link from 'next/link'
-import { Search } from 'lucide-react'
-import { ThemeToggle } from '@/components/ui/ThemeToggle'
-import { NavLinks } from './NavLinks'
-import { MobileMenu } from './MobileMenu'
+import { ThemeToggle }  from '@/components/ui/ThemeToggle'
+import { NavLinks }     from './NavLinks'
+import { MobileMenu }   from './MobileMenu'
+import { SearchButton } from '@/components/search/SearchButton'
 
 export function Navbar() {
   return (
@@ -42,18 +42,19 @@ export function Navbar() {
             >
               ✦
             </span>
-            <span className="font-display text-lg font-bold tracking-widest text-ink dark:text-cream">
-              YAZIT
+            {/* "YAZIT:" in display font + subtitle as one compound name */}
+            <span className="flex items-baseline gap-1.5">
+              <span className="font-display text-lg font-bold tracking-widest text-ink dark:text-cream">
+                YAZIT
+              </span>
+              <span className="font-display text-lg font-bold tracking-widest text-gold" aria-hidden>
+                :
+              </span>
+              <span className="hidden sm:inline text-xs text-fg-muted dark:text-fg-muted-dark tracking-wide whitespace-nowrap">
+                Türk Tarihi Zaman Tüneli
+              </span>
             </span>
           </Link>
-
-          {/* Separator */}
-          <div className="hidden sm:block h-5 w-px bg-border dark:bg-border-dark" aria-hidden />
-
-          {/* Sub-title — hidden on very small screens */}
-          <span className="hidden sm:block text-xs text-fg-muted dark:text-fg-muted-dark tracking-wide whitespace-nowrap">
-            Türk Tarihi Zaman Tüneli
-          </span>
 
           {/* ── Desktop nav links ─────────────────────────────────────────── */}
           <NavLinks className="hidden md:flex ml-4" />
@@ -63,19 +64,7 @@ export function Navbar() {
 
           {/* ── Actions ───────────────────────────────────────────────────── */}
           <div className="flex items-center gap-1">
-            {/* Search button — stub; Phase 10 wires up the search overlay */}
-            <button
-              aria-label="Ara"
-              className={[
-                'flex h-9 w-9 items-center justify-center rounded-md',
-                'text-fg-muted dark:text-fg-muted-dark',
-                'hover:bg-surface-muted dark:hover:bg-surface-800',
-                'hover:text-fg dark:hover:text-fg-dark',
-                'transition-colors duration-150',
-              ].join(' ')}
-            >
-              <Search size={18} strokeWidth={1.75} />
-            </button>
+            <SearchButton />
 
             {/* Theme toggle — hidden on mobile (available inside drawer) */}
             <ThemeToggle className="hidden md:flex" />

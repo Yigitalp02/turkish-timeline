@@ -11,6 +11,10 @@ const dirname = path.dirname(__filename)
 const serverUrl = new URL(process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000')
 
 const nextConfig: NextConfig = {
+  // Produces a minimal self-contained build in .next/standalone suitable for
+  // the Docker runner stage (no node_modules copy needed at deploy time).
+  output: 'standalone',
+
   images: {
     // Local paths (same origin) — for when Payload returns a relative URL
     localPatterns: [

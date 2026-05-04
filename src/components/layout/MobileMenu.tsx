@@ -19,10 +19,30 @@ export function MobileMenu() {
     return () => document.removeEventListener('keydown', handler)
   }, [])
 
-  // Prevent body scroll when drawer is open
+  // Prevent body scroll when drawer is open.
+  // On iOS Safari, overflow:hidden alone doesn't work — we also need to fix
+  // the body position to prevent the background from scrolling.
   useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
+    if (!open) {
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      return
+    }
+    const scrollY = window.scrollY
+    document.body.style.overflow = 'hidden'
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.width = '100%'
+    return () => {
+      const top = document.body.style.top
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      window.scrollTo(0, parseInt(top || '0') * -1)
+    }
   }, [open])
 
   return (
@@ -72,8 +92,9 @@ export function MobileMenu() {
       >
         {/* Drawer header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border dark:border-border-dark">
-          <span className="font-display text-lg font-semibold text-gold tracking-wide">
-            YAZIT
+          <span className="flex items-baseline gap-1">
+            <span className="font-display text-lg font-semibold text-gold tracking-wide">YAZIT</span>
+            <span className="font-display text-lg font-semibold text-gold" aria-hidden>:</span>
           </span>
           <button
             onClick={() => setOpen(false)}

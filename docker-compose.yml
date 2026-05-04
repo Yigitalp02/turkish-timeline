@@ -17,6 +17,26 @@
 #   Stop:    docker compose down
 
 services:
+  # ── One-shot migration runner ──────────────────────────────────────────────
+  # Runs `payload migrate:fresh` on first deploy (creates all tables).
+  # On subsequent deploys, use `payload migrate` after creating migration files.
+  # This service exits after completing — the app service waits for it.
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migrator
+    container_name: yazit_migrate
+    env_file: .env
+    environment:
+      - NODE_ENV=development
+    networks:
+      - yazit_network
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
   db:
     image: postgres:16-alpine
     container_name: yazit_db
@@ -41,8 +61,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        # Bake the public server URL into the static HTML at build time.
+        # Must match the domain you set in Nginx Proxy Manager.
+        NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL}
     container_name: yazit_app
     depends_on:
+      migrate:
+        condition: service_completed_successfully
       db:
         condition: service_healthy
     environment:
@@ -50,8 +76,17 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - PAYLOAD_SECRET=${PAYLOAD_SECRET}
       - NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL}
+      - REVALIDATION_SECRET=${REVALIDATION_SECRET}
+      # Tells Payload to push/sync schema on startup (creates tables if missing).
+      # Safe to keep enabled — it is idempotent once tables exist.
+      - PAYLOAD_DB_PUSH=true
     volumes:
       - /home/bilgin/yazit/media:/app/public/media
+    # Expose on all interfaces so Cloudflare Tunnel (cloudflared container) can
+    # reach it via the host LAN IP (192.168.50.100:3002).
+    # Port 3000 is taken by Gitea, 3001 by Homepage — using 3002.
+    ports:
+      - '3002:3000'
     networks:
       - yazit_network
     mem_limit: 1536m
